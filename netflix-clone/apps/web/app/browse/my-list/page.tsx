@@ -6,9 +6,8 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { ReactElement } from 'react';
 import { prisma } from '../../../lib/prisma';
-import Image from 'next/image';
 
-// Import the UserButton component dynamically to avoid TypeScript errors
+
 const ClientSideButton = dynamic(
   () => import('../../components/ClientSideButton'),
   {
@@ -17,7 +16,6 @@ const ClientSideButton = dynamic(
   }
 );
 
-// Import the MyListCard component dynamically
 const MyListCard = dynamic(
   () => import('../../components/MyListCard'),
   {
@@ -31,31 +29,23 @@ export const metadata: Metadata = {
   description: 'View your saved content on Netflix Clone.',
 };
 
-/**
- * My List Component (Server Component)
- * 
- * This is the user's saved content page of the Netflix clone.
- * It uses Server-Side Rendering for improved performance and SEO.
- * This page is protected and only accessible to authenticated users.
- */
+
 export default async function MyList(): Promise<ReactElement> {
-  // Server-side authentication check
+
   const { userId } = auth();
   
-  // If user is not authenticated, redirect to sign in page
+  
   if (!userId) {
     redirect('/auth/signin');
   }
   
-  // Get current user data (server-side)
   const user = await getCurrentUser();
   
-  // Get user from database using Clerk ID or create if it doesn't exist
   let dbUser = await prisma.user.findUnique({
     where: { clerkId: userId as string },
   });
   
-  // If user doesn't exist in database, create a new user
+ 
   if (!dbUser) {
     try {
       dbUser = await prisma.user.create({
@@ -66,7 +56,7 @@ export default async function MyList(): Promise<ReactElement> {
         },
       });
       
-      // Create a default profile for the user
+     
       await prisma.profile.create({
         data: {
           userId: dbUser.id,
@@ -85,7 +75,6 @@ export default async function MyList(): Promise<ReactElement> {
     }
   }
   
-  // Get the user's active profile
   let profile = await prisma.profile.findFirst({
     where: { userId: dbUser.id },
     include: {
@@ -93,7 +82,6 @@ export default async function MyList(): Promise<ReactElement> {
     },
   });
   
-  // If profile doesn't exist, create a default profile
   if (!profile) {
     try {
       profile = await prisma.profile.create({

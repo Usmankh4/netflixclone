@@ -6,9 +6,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { ReactElement } from 'react';
 import { prisma } from '../../../lib/prisma';
-import Image from 'next/image';
 
-// Import the UserButton component dynamically to avoid TypeScript errors
 const ClientSideButton = dynamic(
   () => import('../../components/ClientSideButton'),
   {
@@ -17,7 +15,6 @@ const ClientSideButton = dynamic(
   }
 );
 
-// Import the AddToFavoritesButton component dynamically
 const AddToFavoritesButton = dynamic(
   () => import('../../components/AddToFavoritesButton'),
   {
@@ -31,31 +28,20 @@ export const metadata: Metadata = {
   description: 'Browse movies on Netflix Clone.',
 };
 
-/**
- * Movies Component (Server Component)
- * 
- * This is the movies page of the Netflix clone.
- * It uses Server-Side Rendering for improved performance and SEO.
- * This page is protected and only accessible to authenticated users.
- */
 export default async function Movies(): Promise<ReactElement> {
-  // Server-side authentication check
   const { userId } = auth();
   
-  // If user is not authenticated, redirect to sign in page
   if (!userId) {
     redirect('/auth/signin');
   }
   
-  // Get current user data (server-side)
   const user = await getCurrentUser();
   
-  // Get user from database using Clerk ID or create if it doesn't exist
   let dbUser = await prisma.user.findUnique({
     where: { clerkId: userId as string },
   });
   
-  // If user doesn't exist in database, create a new user
+  
   if (!dbUser) {
     try {
       dbUser = await prisma.user.create({
@@ -66,7 +52,7 @@ export default async function Movies(): Promise<ReactElement> {
         },
       });
       
-      // Create a default profile for the user
+      
       await prisma.profile.create({
         data: {
           userId: dbUser.id,
@@ -85,7 +71,6 @@ export default async function Movies(): Promise<ReactElement> {
     }
   }
   
-  // Get the user's active profile
   let profile = await prisma.profile.findFirst({
     where: { userId: dbUser.id },
     include: {
@@ -93,7 +78,6 @@ export default async function Movies(): Promise<ReactElement> {
     },
   });
   
-  // If profile doesn't exist, create a default profile
   if (!profile) {
     try {
       profile = await prisma.profile.create({
@@ -117,10 +101,8 @@ export default async function Movies(): Promise<ReactElement> {
     }
   }
   
-  // Create a set of favorited video IDs for quick lookup
   const favoritedVideoIds = new Set(profile.favorites.map(video => video.id));
   
-  // Fetch real data from the database
   const trendingMovies = await prisma.video.findMany({
     where: { 
       type: 'MOVIE',
@@ -129,7 +111,6 @@ export default async function Movies(): Promise<ReactElement> {
     take: 10,
   });
   
-  // Get movies with highest average rating
   const popularMovies = await prisma.video.findMany({
     where: { 
       type: 'MOVIE'
@@ -140,7 +121,6 @@ export default async function Movies(): Promise<ReactElement> {
     }
   });
   
-  // Get action movies
   const actionMovies = await prisma.video.findMany({
     where: { 
       type: 'MOVIE',
@@ -151,7 +131,6 @@ export default async function Movies(): Promise<ReactElement> {
     take: 10,
   });
   
-  // Get drama movies
   const dramaMovies = await prisma.video.findMany({
     where: { 
       type: 'MOVIE',
@@ -162,7 +141,6 @@ export default async function Movies(): Promise<ReactElement> {
     take: 10,
   });
   
-  // Get comedy movies
   const comedyMovies = await prisma.video.findMany({
     where: { 
       type: 'MOVIE',
@@ -173,7 +151,6 @@ export default async function Movies(): Promise<ReactElement> {
     take: 10,
   });
   
-  // Get a random featured movie for the hero banner
   const featuredMovies = await prisma.video.findMany({
     where: { 
       type: 'MOVIE',
@@ -186,7 +163,6 @@ export default async function Movies(): Promise<ReactElement> {
     ? featuredMovies[Math.floor(Math.random() * featuredMovies.length)]
     : null;
   
-  // Get banner image for the featured content
   const bannerImage = featuredContent 
     ? await prisma.imageAsset.findFirst({
         where: { 
@@ -196,7 +172,6 @@ export default async function Movies(): Promise<ReactElement> {
       })
     : null;
   
-  // Format duration for display
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -294,7 +269,7 @@ export default async function Movies(): Promise<ReactElement> {
           </section>
         )}
         
-        {/* Genre Filter */}
+      
         <section className="genre-filter">
           <div className="filter-container">
             <h2 className="filter-title">Movies</h2>
@@ -309,7 +284,7 @@ export default async function Movies(): Promise<ReactElement> {
           </div>
         </section>
         
-        {/* Content Rows */}
+    
         {trendingMovies.length > 0 && (
           <section className="content-section">
             <h2 className="section-title">Trending Movies</h2>

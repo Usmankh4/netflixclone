@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../../lib/prisma';
 import { auth } from '@clerk/nextjs';
 
-// Add to favorites
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string; videoId: string } }
@@ -19,7 +18,6 @@ export async function POST(
 
     const { id, videoId } = params;
 
-    // Get user from database using Clerk ID
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
     });
@@ -31,7 +29,6 @@ export async function POST(
       );
     }
 
-    // Get profile by ID
     const profile = await prisma.profile.findUnique({
       where: { id },
       include: {
@@ -46,7 +43,6 @@ export async function POST(
       );
     }
 
-    // Verify the profile belongs to the user
     if (profile.userId !== user.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -54,7 +50,6 @@ export async function POST(
       );
     }
 
-    // Check if video exists
     const video = await prisma.video.findUnique({
       where: { id: videoId },
     });
@@ -66,7 +61,6 @@ export async function POST(
       );
     }
 
-    // Check if already in favorites
     const isAlreadyFavorite = profile.favorites.some(v => v.id === videoId);
 
     if (isAlreadyFavorite) {
@@ -76,7 +70,7 @@ export async function POST(
       );
     }
 
-    // Add to favorites
+   
     await prisma.profile.update({
       where: { id },
       data: {
@@ -98,7 +92,7 @@ export async function POST(
   }
 }
 
-// Remove from favorites
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string; videoId: string } }
@@ -115,7 +109,6 @@ export async function DELETE(
 
     const { id, videoId } = params;
 
-    // Get user from database using Clerk ID
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
     });
@@ -127,7 +120,6 @@ export async function DELETE(
       );
     }
 
-    // Get profile by ID
     const profile = await prisma.profile.findUnique({
       where: { id },
       include: {
@@ -142,7 +134,7 @@ export async function DELETE(
       );
     }
 
-    // Verify the profile belongs to the user
+    
     if (profile.userId !== user.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -150,7 +142,6 @@ export async function DELETE(
       );
     }
 
-    // Check if video is in favorites
     const isInFavorites = profile.favorites.some(v => v.id === videoId);
 
     if (!isInFavorites) {
@@ -160,7 +151,7 @@ export async function DELETE(
       );
     }
 
-    // Remove from favorites
+    
     await prisma.profile.update({
       where: { id },
       data: {

@@ -6,9 +6,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { ReactElement } from 'react';
 import { prisma } from '../../../lib/prisma';
-import Image from 'next/image';
 
-// Import the UserButton component dynamically to avoid TypeScript errors
 const ClientSideButton = dynamic(
   () => import('../../components/ClientSideButton'),
   {
@@ -17,7 +15,7 @@ const ClientSideButton = dynamic(
   }
 );
 
-// Import the AddToFavoritesButton component dynamically
+
 const AddToFavoritesButton = dynamic(
   () => import('../../components/AddToFavoritesButton'),
   {
@@ -31,26 +29,17 @@ export const metadata: Metadata = {
   description: 'Browse TV shows on Netflix Clone.',
 };
 
-/**
- * Series Component (Server Component)
- * 
- * This is the TV shows page of the Netflix clone.
- * It uses Server-Side Rendering for improved performance and SEO.
- * This page is protected and only accessible to authenticated users.
- */
+
 export default async function Series(): Promise<ReactElement> {
-  // Server-side authentication check
+  
   const { userId } = auth();
   
-  // If user is not authenticated, redirect to sign in page
   if (!userId) {
     redirect('/auth/signin');
   }
   
-  // Get current user data (server-side)
   const user = await getCurrentUser();
   
-  // Get user from database using Clerk ID
   const dbUser = await prisma.user.findUnique({
     where: { clerkId: userId as string },
   });
@@ -64,7 +53,7 @@ export default async function Series(): Promise<ReactElement> {
     );
   }
   
-  // Get the user's active profile
+ 
   const profile = await prisma.profile.findFirst({
     where: { userId: dbUser.id },
     include: {
@@ -81,10 +70,8 @@ export default async function Series(): Promise<ReactElement> {
     );
   }
   
-  // Create a set of favorited video IDs for quick lookup
   const favoritedVideoIds = new Set(profile.favorites.map(video => video.id));
   
-  // Fetch real data from the database
   const trendingTVShows = await prisma.video.findMany({
     where: { 
       type: 'SERIES',
@@ -93,7 +80,6 @@ export default async function Series(): Promise<ReactElement> {
     take: 10,
   });
   
-  // Get TV shows with highest average rating
   const popularTVShows = await prisma.video.findMany({
     where: { 
       type: 'SERIES'
@@ -104,7 +90,6 @@ export default async function Series(): Promise<ReactElement> {
     }
   });
   
-  // Get drama TV shows
   const dramaTVShows = await prisma.video.findMany({
     where: { 
       type: 'SERIES',
@@ -115,7 +100,6 @@ export default async function Series(): Promise<ReactElement> {
     take: 10,
   });
   
-  // Get comedy TV shows
   const comedyTVShows = await prisma.video.findMany({
     where: { 
       type: 'SERIES',
@@ -126,7 +110,6 @@ export default async function Series(): Promise<ReactElement> {
     take: 10,
   });
   
-  // Get a random featured TV show for the hero banner
   const featuredTVShows = await prisma.video.findMany({
     where: { 
       type: 'SERIES',
@@ -139,7 +122,6 @@ export default async function Series(): Promise<ReactElement> {
     ? featuredTVShows[Math.floor(Math.random() * featuredTVShows.length)]
     : null;
   
-  // Get banner image for the featured content
   const bannerImage = featuredContent 
     ? await prisma.imageAsset.findFirst({
         where: { 
@@ -204,7 +186,7 @@ export default async function Series(): Promise<ReactElement> {
       </header>
       
       <main className="browse-main">
-        {/* Hero Banner */}
+        
         {featuredContent && (
           <section 
             className="hero-banner" 
@@ -238,7 +220,7 @@ export default async function Series(): Promise<ReactElement> {
           </section>
         )}
         
-        {/* Genre Filter */}
+        
         <section className="genre-filter">
           <div className="filter-container">
             <h2 className="filter-title">TV Shows</h2>
@@ -253,7 +235,7 @@ export default async function Series(): Promise<ReactElement> {
           </div>
         </section>
         
-        {/* Content Rows */}
+        
         {trendingTVShows.length > 0 && (
           <section className="content-section">
             <h2 className="section-title">Trending TV Shows</h2>

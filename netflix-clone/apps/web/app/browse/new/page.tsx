@@ -6,9 +6,8 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { ReactElement } from 'react';
 import { prisma } from '../../../lib/prisma';
-import Image from 'next/image';
 
-// Import the UserButton component dynamically to avoid TypeScript errors
+
 const ClientSideButton = dynamic(
   () => import('../../components/ClientSideButton'),
   {
@@ -17,7 +16,6 @@ const ClientSideButton = dynamic(
   }
 );
 
-// Import the AddToFavoritesButton component dynamically
 const AddToFavoritesButton = dynamic(
   () => import('../../components/AddToFavoritesButton'),
   {
@@ -31,26 +29,19 @@ export const metadata: Metadata = {
   description: 'Browse new and popular content on Netflix Clone.',
 };
 
-/**
- * New & Popular Component (Server Component)
- * 
- * This is the new and popular content page of the Netflix clone.
- * It uses Server-Side Rendering for improved performance and SEO.
- * This page is protected and only accessible to authenticated users.
- */
+
 export default async function NewAndPopular(): Promise<ReactElement> {
   // Server-side authentication check
   const { userId } = auth();
   
-  // If user is not authenticated, redirect to sign in page
+
   if (!userId) {
     redirect('/auth/signin');
   }
   
-  // Get current user data (server-side)
+
   const user = await getCurrentUser();
-  
-  // Get user from database using Clerk ID
+
   const dbUser = await prisma.user.findUnique({
     where: { clerkId: userId as string },
   });
@@ -63,8 +54,7 @@ export default async function NewAndPopular(): Promise<ReactElement> {
       </div>
     );
   }
-  
-  // Get the user's active profile
+
   const profile = await prisma.profile.findFirst({
     where: { userId: dbUser.id },
     include: {
@@ -81,18 +71,13 @@ export default async function NewAndPopular(): Promise<ReactElement> {
     );
   }
   
-  // Create a set of favorited video IDs for quick lookup
   const favoritedVideoIds = new Set(profile.favorites.map(video => video.id));
   
-  // Get the current date
   const now = new Date();
-  
-  // Calculate the date 30 days ago
   const thirtyDaysAgo = new Date();
+
   thirtyDaysAgo.setDate(now.getDate() - 30);
   
-  // Fetch real data from the database
-  // Get videos added in the last 30 days
   const newReleases = await prisma.video.findMany({
     where: { 
       createdAt: {
@@ -105,7 +90,6 @@ export default async function NewAndPopular(): Promise<ReactElement> {
     }
   });
   
-  // Get trending videos
   const trendingVideos = await prisma.video.findMany({
     where: { 
       trending: true 
@@ -113,7 +97,6 @@ export default async function NewAndPopular(): Promise<ReactElement> {
     take: 10,
   });
   
-  // Get popular videos (highest rated)
   const popularVideos = await prisma.video.findMany({
     take: 10,
     orderBy: {
@@ -121,7 +104,6 @@ export default async function NewAndPopular(): Promise<ReactElement> {
     }
   });
   
-  // Get a random featured video for the hero banner
   const featuredVideos = await prisma.video.findMany({
     where: { 
       featured: true 
@@ -133,7 +115,6 @@ export default async function NewAndPopular(): Promise<ReactElement> {
     ? featuredVideos[Math.floor(Math.random() * featuredVideos.length)]
     : null;
   
-  // Get banner image for the featured content
   const bannerImage = featuredContent 
     ? await prisma.imageAsset.findFirst({
         where: { 
@@ -143,7 +124,6 @@ export default async function NewAndPopular(): Promise<ReactElement> {
       })
     : null;
   
-  // Format date for display
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',

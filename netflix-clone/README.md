@@ -82,3 +82,58 @@ Learn more about the power of Turborepo:
 - [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
 - [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
 - [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+
+## How to Create a GitHub Repository and Push This Project
+
+Follow these steps to initialize a local Git repository and push your Netflix clone to GitHub:
+
+### 1. Initialize Git (if not already done)
+
+Open a terminal in your project root and run:
+
+```sh
+git init
+git add .
+git commit -m "Initial commit: Netflix clone"
+```
+
+### 2. Create a New GitHub Repository
+
+- Go to [GitHub](https://github.com/new)
+- Name your repo (e.g., `netflixclone`)
+- **Do NOT** initialize with a README, .gitignore, or license (your local project already has these)
+- Click "Create repository"
+
+### 3. Add the Remote and Push
+
+Replace `YOUR_USERNAME` and `REPO_NAME` below with your GitHub username and the repo name you just created:
+
+```sh
+git remote add origin https://github.com/YOUR_USERNAME/REPO_NAME.git
+git branch -M main
+git push -u origin main
+```
+
+Example:
+```sh
+git remote add origin https://github.com/Usmankh4/netflixclone.git
+git branch -M main
+git push -u origin main
+```
+
+After this, your code will be live on GitHub!
+
+---
+
+## Project Overview
+
+This is a full-stack Netflix clone built with Next.js 14 (App Router, SSR), TypeScript, Prisma, Clerk authentication, PostgreSQL, and Stripe for subscriptions. It features:
+
+- Authentication (sign up, sign in, email verification, profile management)
+- Video streaming (with HLS support)
+- User profiles and watch history
+- Subscription management (Stripe)
+- Netflix-style UI with responsive design
+- Cloud-ready for Vercel, PlanetScale, or Railway
+
+See the rest of this README for setup and deployment instructions.

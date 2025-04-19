@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     
-    // Get user from database using Clerk ID
+    
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
     });
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get profiles for the user
+  
     const profiles = await prisma.profile.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -64,7 +64,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user from database using Clerk ID
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
       include: {
@@ -80,7 +79,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user has reached profile limit based on subscription
     const profileLimit = user.subscription?.plan === 'PREMIUM' 
       ? 5 
       : user.subscription?.plan === 'STANDARD' 
@@ -98,7 +96,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create new profile
     const profile = await prisma.profile.create({
       data: {
         name,

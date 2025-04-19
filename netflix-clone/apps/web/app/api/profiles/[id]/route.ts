@@ -18,7 +18,7 @@ export async function GET(
 
     const id = params.id;
     
-    // Get user from database using Clerk ID
+    
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
     });
@@ -30,7 +30,7 @@ export async function GET(
       );
     }
 
-    // Get profile by ID and verify it belongs to the user
+    
     const profile = await prisma.profile.findUnique({
       where: { id },
       include: {
@@ -54,7 +54,7 @@ export async function GET(
       );
     }
 
-    // Verify the profile belongs to the user
+    
     if (profile.userId !== user.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -90,7 +90,6 @@ export async function PUT(
     const body = await request.json();
     const { name, imageUrl } = body;
 
-    // Get user from database using Clerk ID
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
     });
@@ -102,7 +101,6 @@ export async function PUT(
       );
     }
 
-    // Get profile by ID
     const profile = await prisma.profile.findUnique({
       where: { id },
     });
@@ -114,7 +112,6 @@ export async function PUT(
       );
     }
 
-    // Verify the profile belongs to the user
     if (profile.userId !== user.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -122,7 +119,6 @@ export async function PUT(
       );
     }
 
-    // Update profile
     const updatedProfile = await prisma.profile.update({
       where: { id },
       data: {
@@ -157,7 +153,6 @@ export async function DELETE(
 
     const id = params.id;
 
-    // Get user from database using Clerk ID
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
     });
@@ -169,7 +164,6 @@ export async function DELETE(
       );
     }
 
-    // Get profile by ID
     const profile = await prisma.profile.findUnique({
       where: { id },
     });
@@ -181,7 +175,6 @@ export async function DELETE(
       );
     }
 
-    // Verify the profile belongs to the user
     if (profile.userId !== user.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -189,7 +182,6 @@ export async function DELETE(
       );
     }
 
-    // Delete profile
     await prisma.profile.delete({
       where: { id },
     });
