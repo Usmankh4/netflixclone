@@ -61,6 +61,7 @@ export async function POST(
       );
     }
 
+    // Explicitly type the parameter in the callback
     const isAlreadyFavorite = profile.favorites.some((v: { id: string }) => v.id === videoId);
     if (isAlreadyFavorite) {
       return NextResponse.json(
@@ -69,7 +70,6 @@ export async function POST(
       );
     }
 
-   
     await prisma.profile.update({
       where: { id },
       data: {
@@ -90,7 +90,6 @@ export async function POST(
     );
   }
 }
-
 
 export async function DELETE(
   request: NextRequest,
@@ -133,7 +132,6 @@ export async function DELETE(
       );
     }
 
-    
     if (profile.userId !== user.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -141,6 +139,7 @@ export async function DELETE(
       );
     }
 
+    // Explicitly type the parameter in the callback
     const isInFavorites = profile.favorites.some((v: { id: string }) => v.id === videoId);
 
     if (!isInFavorites) {
@@ -150,7 +149,6 @@ export async function DELETE(
       );
     }
 
-    
     await prisma.profile.update({
       where: { id },
       data: {
