@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  clerkId       String    @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  profiles      Profile[]
+  subscription  Subscription?
+  ratings       Rating[]
+}
+
+model Profile {
+  id           String    @id @default(cuid())
+  name         String
+  imageUrl     String?
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  favorites    Video[]
+  watchHistory WatchHistory[]
+
+  @@index([userId])
+}
+
+model Video {
+  id              String         @id @default(cuid())
+  title           String
+  description     String?
+  thumbnailUrl    String
+  videoUrl        String
+  trailerUrl      String?
+  duration        Int            // Duration in seconds
+  genre           String[]
+  releaseYear     Int?
+  director        String?
+  cast            String[]
+  maturityRating  String?        // e.g., "PG-13", "TV-MA"
+  featured        Boolean        @default(false)
+  trending        Boolean        @default(false)
+  isOriginal      Boolean        @default(false)
+  type            VideoType      @default(MOVIE)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  favoredBy       Profile[]
+  ratings         Rating[]
+  watchHistory    WatchHistory[]
+  averageRating   Float?         // Calculated field for average rating
+  totalRatings    Int            @default(0)
+}
+
+enum VideoType {
+  MOVIE
+  SERIES
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  value     Int      // Rating value (1-5)
+  comment   String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, videoId]) // One rating per user per video
+  @@index([userId])
+  @@index([videoId])
+}
+
+model WatchHistory {
+  id         String   @id @default(cuid())
+  profileId  String
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  videoId    String
+  video      Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  watchedAt  DateTime @default(now())
+  progress   Int      @default(0) // Progress in seconds
+  completed  Boolean  @default(false)
+
+  @@index([profileId])
+  @@index([videoId])
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  stripePriceId        String?
+  stripeCurrentPeriodEnd DateTime?
+  plan                 PlanType  @default(BASIC)
+  status               SubscriptionStatus @default(INACTIVE)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+enum PlanType {
+  BASIC
+  STANDARD
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  CANCELED
+  PAST_DUE
+}
+
+model ImageAsset {
+  id          String   @id @default(cuid())
+  url         String
+  key         String   @unique // S3 key or Supabase storage key
+  type        AssetType
+  size        Int
+  width       Int?
+  height      Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum AssetType {
+  THUMBNAIL
+  BANNER
+  PROFILE
+  LOGO
+}
