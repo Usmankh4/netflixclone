@@ -62,7 +62,6 @@ export async function POST(
     }
 
     const isAlreadyFavorite = profile.favorites.some((v: { id: string }) => v.id === videoId);
-
     if (isAlreadyFavorite) {
       return NextResponse.json(
         { error: 'Video already in favorites' },
