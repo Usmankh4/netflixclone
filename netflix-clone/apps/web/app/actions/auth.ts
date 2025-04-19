@@ -3,28 +3,19 @@
 import { auth, clerkClient } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
-/**
- * Server action to sign in a user
- * This leverages SSR for improved security and performance
- */
+
 export async function signInUser(formData: FormData) {
   try {
-    // Extract form data
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     
-    // Validate inputs
     if (!email || !password) {
       return {
         error: "Email and password are required"
       };
     }
     
-    // Note: In a true SSR implementation, we would use Clerk's server-side APIs
-    // However, Clerk's passwordless sign-in flow requires client-side components
-    // This is a limitation of the current Clerk implementation
     
-    // For now, we'll return the validated data to be processed by a client component
     return {
       success: true,
       email,
@@ -41,12 +32,12 @@ export async function signInUser(formData: FormData) {
 
 export async function signUpUser(formData: FormData) {
   try {
-    // Extract form data
+    
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
     
-    // Validate inputs
+  
     if (!email || !password || !confirmPassword) {
       return {
         error: "All fields are required"
@@ -107,10 +98,7 @@ export async function checkAuth() {
   return userId;
 }
 
-/**
- * Server action to record a successful user sign-in
- * This allows for additional server-side operations after authentication
- */
+
 export async function recordUserSignIn(sessionId: string) {
   try {
     const { userId } = auth();
@@ -121,13 +109,10 @@ export async function recordUserSignIn(sessionId: string) {
       };
     }
     
-    // Log the sign-in event (you could store this in a database)
+    
     console.log(`User ${userId} signed in successfully with session ${sessionId} at ${new Date().toISOString()}`);
     
-    // You could perform additional operations here:
-    // - Update last login timestamp in your database
-    // - Record the sign-in IP address for security monitoring
-    // - Update user analytics
+    
     
     return {
       success: true,
@@ -141,21 +126,14 @@ export async function recordUserSignIn(sessionId: string) {
   }
 }
 
-/**
- * Server action to get detailed authentication error information
- * This provides better error messages to the client
- */
+
+
 export async function getAuthErrorDetails(formData: FormData) {
   try {
     const email = formData.get("email") as string;
     const errorMessage = formData.get("errorMessage") as string;
     
-    // Here you could implement custom error handling logic:
-    // - Check if the email exists in your database
-    // - Determine if the account is locked
-    // - Provide more specific error messages
-    
-    // For demonstration, we'll provide more user-friendly error messages
+   
     if (errorMessage.includes("password")) {
       return {
         message: "The password you entered is incorrect. Please try again."
@@ -170,7 +148,7 @@ export async function getAuthErrorDetails(formData: FormData) {
       };
     }
     
-    // Default error message
+    
     return {
       message: "An error occurred during sign-in. Please try again."
     };

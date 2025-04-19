@@ -61,7 +61,7 @@ export async function POST(
       );
     }
 
-    const isAlreadyFavorite = profile.favorites.some(v => v.id === videoId);
+    const isAlreadyFavorite = profile.favorites.some((v: { id: string }) => v.id === videoId);
 
     if (isAlreadyFavorite) {
       return NextResponse.json(
@@ -142,7 +142,7 @@ export async function DELETE(
       );
     }
 
-    const isInFavorites = profile.favorites.some(v => v.id === videoId);
+    const isInFavorites = profile.favorites.some((v: { id: string }) => v.id === videoId);
 
     if (!isInFavorites) {
       return NextResponse.json(
