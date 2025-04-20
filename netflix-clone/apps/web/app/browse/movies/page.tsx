@@ -7,6 +7,28 @@ import dynamic from 'next/dynamic';
 import { ReactElement } from 'react';
 import { prisma } from '../../../lib/prisma';
 
+// Correct Video interface to match possible nulls from Prisma
+interface Video {
+  id: string;
+  title: string;
+  description?: string | null;
+  thumbnailUrl: string;
+  videoUrl: string;
+  trailerUrl?: string | null;
+  duration: number;
+  genre: string[];
+  releaseYear?: number | null;
+  director?: string | null;
+  cast: string[];
+  maturityRating?: string | null;
+  featured: boolean;
+  trending: boolean;
+  isOriginal: boolean;
+  type: 'MOVIE' | 'SERIES';
+  averageRating?: number | null;
+  totalRatings: number;
+}
+
 const ClientSideButton = dynamic(
   () => import('../../components/ClientSideButton'),
   {
@@ -103,7 +125,7 @@ export default async function Movies(): Promise<ReactElement> {
   
   const favoritedVideoIds = new Set((profile.favorites ?? []).map((video: { id: string }) => video.id));
   
-  const trendingMovies = await prisma.video.findMany({
+  const trendingMovies: Video[] = await prisma.video.findMany({
     where: { 
       type: 'MOVIE',
       trending: true 
@@ -277,7 +299,7 @@ export default async function Movies(): Promise<ReactElement> {
               <button className="filter-button">
                 Genres
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M6 9L12 15L18 9M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
             </div>
@@ -289,7 +311,7 @@ export default async function Movies(): Promise<ReactElement> {
           <section className="content-section">
             <h2 className="section-title">Trending Movies</h2>
             <div className="content-row">
-              {trendingMovies.map((item) => (
+              {trendingMovies.map((item: Video) => (
                 <div key={item.id} className="content-card">
                   <img 
                     src={item.thumbnailUrl} 
