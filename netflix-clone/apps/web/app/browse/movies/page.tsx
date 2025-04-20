@@ -101,7 +101,7 @@ export default async function Movies(): Promise<ReactElement> {
     }
   }
   
-  const favoritedVideoIds = new Set(profile.favorites.map(video => video.id));
+  const favoritedVideoIds = new Set((profile.favorites ?? []).map((video: { id: string }) => video.id));
   
   const trendingMovies = await prisma.video.findMany({
     where: { 
